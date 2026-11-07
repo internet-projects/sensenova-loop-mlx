@@ -15,8 +15,10 @@ Measured on a MacBook Pro M5 Max (128 GB), 7 November 2026, upstream revision `9
 
 ## Use
 
+Needs Python 3.10 or newer and mlx-lm 0.32 or newer (the macOS system Python 3.9 only gets an older mlx-lm that can't load this model).
+
 ```bash
-pip install -U mlx-lm
+pip install -U "mlx-lm>=0.32"
 ```
 
 ```python
