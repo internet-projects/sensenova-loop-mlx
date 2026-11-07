@@ -1,0 +1,8 @@
+sensenova-loop-mlx — MLX port of SenseNova-Loop by NetProjects (Internet Projects Ltd)
+Copyright 2026 NetProjects (Paris Michalas). Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+The model architecture follows SenseNova's modeling_sensenova_loop.py for SenseNova-Loop-9B-Preview
+(https://huggingface.co/sensenova/SenseNova-Loop-9B-Preview, revision 9937e91c7301b7dcbb5bf17e3e4e95c499a11e99),
+released by SenseNova under Apache-2.0. Built on Apple's mlx-lm (MIT) qwen3_5 model.
+
+Not affiliated with SenseTime / SenseNova.

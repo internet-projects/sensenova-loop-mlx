@@ -1,0 +1,10 @@
+mlx==0.32.4
+mlx-lm==0.32.2
+# reference / parity / tests only:
+transformers==5.18.0
+torch
+safetensors
+tokenizers
+numpy
+pyarrow
+huggingface_hub
