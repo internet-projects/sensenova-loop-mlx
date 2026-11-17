@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Convert the pinned sensenova/SenseNova-Loop-9B-Preview folder to MLX (text model; vision comes later).
+"""Convert a pinned sensenova/SenseNova-Loop-9B (or -Preview) folder to MLX (text model; vision comes later).
 
-    python convert.py --hf ~/local-llms/sensenova/hf-9937e91 --out ~/local-llms/sensenova/mlx-bf16
+    python convert.py --hf ~/local-llms/sensenova/hf-329a65f7 --out ~/local-llms/sensenova/mlx-bf16
     python convert.py --hf ... --out ~/local-llms/sensenova/mlx-q8 --bits 8
     python convert.py --hf ... --out ~/local-llms/sensenova/mlx-q4 --bits 4
 
@@ -65,7 +65,9 @@ def main():
     # transformers' tokenizer loader ask "run custom code? [y/N]" inside mlx_lm.load.
     c.pop("auto_map", None)
     rev = os.path.join(a.hf, ".sensenova_revision")
-    c["sensenova_mlx"] = {"source": "sensenova/SenseNova-Loop-9B-Preview",
+    src = os.path.join(a.hf, ".sensenova_source")
+    source = open(src).read().strip() if os.path.exists(src) else "sensenova/" + c.get("model_name", "SenseNova-Loop-9B")
+    c["sensenova_mlx"] = {"source": source,
                           "revision": open(rev).read().strip() if os.path.exists(rev) else None,
                           "text_only": True, "hi_bits_for": hi or None}
     json.dump(c, open(cp, "w"), indent=2)

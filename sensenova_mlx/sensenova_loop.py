@@ -1,5 +1,6 @@
 # Copyright © 2026 NetProjects (Paris Michalas). Apache-2.0.
-# MLX port of SenseNova-Loop (sensenova/SenseNova-Loop-9B-Preview, modeling_sensenova_loop.py @ 9937e91).
+# MLX port of SenseNova-Loop (sensenova/SenseNova-Loop-9B @ 329a65f7 and SenseNova-Loop-9B-Preview @ 9937e91; both ship
+# the same modeling_sensenova_loop.py). The release adds YaRN rope (512K), handled by mlx-lm's qwen3_5 attention.
 # Not affiliated with SenseTime / SenseNova.
 #
 # SenseNova-Loop is Qwen3.5 (text) with two changes:
@@ -240,6 +241,8 @@ class Model(nn.Module):
     def sanitize(self, weights):
         # q35: drops model.visual.* and mtp.*, renames model.language_model -> language_model.model, conv1d layout,
         # +1 on norms for raw HF checkpoints. Routers stay fp32 (the reference refuses to run them in bf16).
+        # The release checkpoint also carries `loop_gate.logits`, which the reference forward never reads: drop it.
+        weights = {k: v for k, v in weights.items() if "loop_gate" not in k}
         weights = q35.Model.sanitize(self, weights)
         return {k: (v.astype(mx.float32) if (".mhc_attn." in k or ".mhc_ffn." in k) else v) for k, v in weights.items()}
 

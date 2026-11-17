@@ -9,10 +9,17 @@ PY="${PY:-.venv/bin/python}"; T="$(mktemp -d)"
 "$PY" scripts/make_tiny.py --out "$T/ours-noloop" --no-loop 2>&1 | grep -v "falling back" || true
 echo "== MLX vs PyTorch re-implementation"
 "$PY" tests/test_tiny.py "$T/ours" "$T/ours-noloop"
+"$PY" scripts/make_tiny.py --out "$T/ours-rel" --release 2>&1 | grep -v "falling back" || true
+echo "== MLX vs PyTorch re-implementation, release layout (YaRN + unused loop_gate)"
+"$PY" tests/test_tiny.py "$T/ours-rel"
 if [ $# -ge 1 ]; then
   echo "== MLX vs SenseNova's remote code ($1)"
   "$PY" scripts/make_tiny.py --ref remote --src "$1" --out "$T/remote" 2>&1 | grep -v "falling back" || true
   "$PY" scripts/make_tiny.py --ref remote --src "$1" --out "$T/remote-noloop" --no-loop 2>&1 | grep -v "falling back" || true
   "$PY" tests/test_tiny.py "$T/remote" "$T/remote-noloop"
+  echo "== MLX vs SenseNova's remote code, release layout (YaRN + unused loop_gate)"
+  "$PY" scripts/make_tiny.py --ref remote --src "$1" --release --out "$T/remote-rel" 2>&1 | grep -v "falling back" || true
+  "$PY" scripts/make_tiny.py --ref remote --src "$1" --release --out "$T/remote-rel-noloop" --no-loop 2>&1 | grep -v "falling back" || true
+  "$PY" tests/test_tiny.py "$T/remote-rel" "$T/remote-rel-noloop"
 fi
 rm -rf "$T"

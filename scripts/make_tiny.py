@@ -61,9 +61,16 @@ def main():
     ap.add_argument("--len", type=int, default=24)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--no-loop", action="store_true", help="eval_count 1 (for the loop-fires check)")
+    ap.add_argument("--release", action="store_true",
+                    help="release layout: YaRN rope (factor 2) and an unused loop_gate.logits tensor in the checkpoint")
     a = ap.parse_args()
     torch.manual_seed(a.seed)
     os.makedirs(a.out, exist_ok=True)
+    if a.release:
+        TEXT["rope_parameters"] = dict(rope_type="yarn", factor=2.0, original_max_position_embeddings=16,
+                                       rope_theta=10000000, partial_rotary_factor=0.25,
+                                       mrope_section=[1, 1, 0], mrope_interleaved=True)
+        TEXT["max_position_embeddings"] = 32
     loop = dict(LOOP)
     if a.no_loop:
         loop.update(eval_count=1, counts=[1])
@@ -117,6 +124,9 @@ def main():
         m.save_pretrained(a.out, safe_serialization=True)
         with torch.no_grad():
             logits = [m(input_ids=x, use_cache=False).logits.float().numpy() for x in ids]
+    if a.release:  # constant logit(0.02), as in the real checkpoint; the reference never reads it
+        save_file({"model.language_model.loop_gate.logits": torch.full((TEXT["hidden_size"],), -3.8918203)},
+                  os.path.join(a.out, "model-loop-gate.safetensors"))
     write_tokenizer(a.out, TEXT["vocab_size"])
     np.savez(os.path.join(a.out, "ref_logits.npz"), ids=np.stack([x.numpy()[0] for x in ids]), logits=np.stack([l[0] for l in logits]))
     print(f"tiny model ({a.ref}) -> {a.out}: {a.n} cases x {a.len} tokens")
