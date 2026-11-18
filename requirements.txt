@@ -8,3 +8,4 @@ tokenizers
 numpy
 pyarrow
 huggingface_hub
+pillow  # image input only
